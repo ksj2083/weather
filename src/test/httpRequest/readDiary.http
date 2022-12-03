@@ -1,0 +1,11 @@
+GET http://localhost:8080/read/diary?date=2022-12-03
+Accept: application/json
+
+###
+
+
+GET http://localhost:8080/read/diaries?startDate=2022-11-01&endDate=2022-12-05
+Accept: application/json
+
+###
+
