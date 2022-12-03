@@ -13,12 +13,15 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import zerobase.weather.WeatherApplication;
 import zerobase.weather.domain.DateWeather;
 import zerobase.weather.domain.Diary;
 import zerobase.weather.repository.DateWeatherRepository;
@@ -34,7 +37,7 @@ public class DiaryService {
 	private final DiaryRepository diaryRepository;
 	private final DateWeatherRepository dateWeatherRepository;
 
-
+	private static final Logger logger = LoggerFactory.getLogger(WeatherApplication.class);
 	public DiaryService(DiaryRepository diaryRepository, DateWeatherRepository dateWeatherRepository) {
 		this.diaryRepository = diaryRepository;
 		this.dateWeatherRepository = dateWeatherRepository;
@@ -43,6 +46,7 @@ public class DiaryService {
 	@Transactional
 	@Scheduled(cron ="0 0 1 * * *") //초 분 시 일 월 년
 	public void saveWeatherDate() {
+		logger.info("오늘 날씨데이터 가져옴");
 		dateWeatherRepository.save(getWeatherFromApi());
 
 	}
@@ -66,7 +70,8 @@ public class DiaryService {
 
 	@Transactional(isolation =  Isolation.SERIALIZABLE)
 	public void createDiary(LocalDate date, String text) {
-		
+
+		logger.info("Started to create diary");
 		//날씨 데이터 가져오기(API 에서 가져오지 않고 DB에서 가져온다.
 		DateWeather dateWeather = getDateWeather(date);
 
@@ -76,6 +81,7 @@ public class DiaryService {
 		nowDiary.setText(text);
 		nowDiary.setDate(date);
 		diaryRepository.save(nowDiary);
+		logger.info("end to create diary");
 	}
 
 	private DateWeather getDateWeather(LocalDate date) {
@@ -146,6 +152,7 @@ public class DiaryService {
 
 	@Transactional(readOnly = true)
 	public List<Diary> readDiary(LocalDate date) {
+		logger.debug("read diary");
 		return diaryRepository.findAllByDate(date);
 	}
 
